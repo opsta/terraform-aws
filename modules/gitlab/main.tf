@@ -23,7 +23,7 @@ resource "aws_instance" "gitlab" {
   tags                    = { Name = var.instance_name }
   volume_tags             = { Name = var.instance_name }
 
-  user_data                   = templatefile("${path.module}/user-data/user-data.sh", {
+  user_data                   = templatefile("${path.module}/templates/user-data.sh", {
     # Pass in the data about the EBS volumes so they can be mounted
     gitlab_volume_device_name = var.gitlab_volume_device_name
     gitlab_volume_mount_point = var.gitlab_volume_mount_point
@@ -100,4 +100,17 @@ data "aws_vpc" "default" {
 
 data "aws_subnet_ids" "default" {
   vpc_id = data.aws_vpc.default.id
+}
+
+data "template_file" "ansible_inventory" {
+  template       = "${file("${path.module}/templates/gitlab.ini")}"
+  vars = {
+    gitlab_group = var.instance_name
+    gitlab_host  = "${var.instance_name}-server ansible_user=${var.ami_ssh_user} ansible_host=${aws_instance.gitlab.public_ip} ansible_port=${var.ami_ssh_port}"
+  }
+}
+
+resource "local_file" "ansible_inventory_file" {
+  content  = data.template_file.ansible_inventory.rendered
+  filename = "./inventories/${var.instance_name}.ini"
 }

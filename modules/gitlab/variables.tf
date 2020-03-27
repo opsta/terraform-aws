@@ -36,6 +36,18 @@ variable "ami_id" {
   default     = "ami-09a4a9ce71ff3f20b"
 }
 
+variable "ami_ssh_user" {
+  description = "Username for building Ansible Inventory to SSH"
+  type        = string
+  default     = "ubuntu"
+}
+
+variable "ami_ssh_port" {
+  description = "Username for building Ansible Inventory to SSH"
+  type        = number
+  default     = 22
+}
+
 variable "gitlab_instance_type" {
   description = "AWS instance type"
   type        = string
