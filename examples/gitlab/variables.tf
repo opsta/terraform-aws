@@ -11,35 +11,34 @@
 # You must provide a value for each of these parameters.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "ssh_key_name" {
-  description = "The name of an EC2 Key Pair that can be used to SSH to the EC2 Instances in this cluster. Set to an empty string to not associate a Key Pair."
-  type        = string
-  default     = "opsta"
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# OPTIONAL PARAMETERS
-# These parameters have reasonable defaults.
-# ---------------------------------------------------------------------------------------------------------------------
-
 variable "aws_region" {
   description = "The AWS region in which all resources will be created"
   type        = string
   default     = "ap-southeast-1"
 }
 
-variable "ami_id" {
-  description = "The ID of the AMI to run in the cluster. This should be Ubuntu 18.04 LTS"
+variable "instance_name" {
+  description = "AWS instance name"
   type        = string
-  # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type (64-bit x86) in ap-southeast-1
-  default     = "ami-09a4a9ce71ff3f20b"
+  default     = "gitlab"
 }
 
-variable "gitlab_instance_type" {
+variable "ssh_key_name" {
+  description = "The name of an EC2 Key Pair that can be used to SSH to the EC2 Instances. Set to an empty string to not associate a Key Pair."
+  type        = string
+  default     = "opsta"
+}
+
+variable "aws_instance_type" {
   description = "AWS instance type"
   type        = string
   default     = "t3a.medium"
 }
+
+# ---------------------------------------------------------------------------------------------------------------------
+# OPTIONAL PARAMETERS
+# These parameters have reasonable defaults.
+# ---------------------------------------------------------------------------------------------------------------------
 
 variable "root_volume_size" {
   description = "The size, in GB, of the root EBS volume."
@@ -65,8 +64,20 @@ variable "ebs_block_devices" {
   ]
 }
 
-variable "gitlab_volume_device_name" {
-  description = "The device name to use for the EBS Volume used for the data directories on GitLab node."
+variable "ebs_volume_device_name" {
+  description = "The device name to use for the EBS Volume used for the data directories on instance."
   type        = string
   default     = "/dev/xvdh"
 }
+
+variable "ebs_volume_mount_point" {
+  description = "The mount point (folder path) to use for the EBS Volume used for the data directories on instance."
+  type        = string
+  default     = "/var/opt/gitlab"
+}
+
+# variable "ssh_public_key" {
+#   description = "Public Key to create EC2 Key Pair that can be used to SSH to the EC2 Instances. Set to an empty string to not create Key Pair."
+#   type        = string
+#   default     = "CHANGEME"
+# }

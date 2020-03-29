@@ -103,6 +103,11 @@ function mount_volumes {
   local -r volume_mount_point="$2"
   local -r volume_owner="$3"
 
+  if [ -z "$${volume_device_name}" ] || [ -z "$${volume_mount_point}" ]; then
+    echo "No volume to mount"
+    exit 0
+  fi
+
   echo "Create a temporary symbolic link to retrieve UUID on first boot"
   nvme_alias
 
@@ -112,5 +117,5 @@ function mount_volumes {
 
 
 mount_volumes \
-  "${gitlab_volume_device_name}" \
-  "${gitlab_volume_mount_point}"
+  "${ebs_volume_device_name}" \
+  "${ebs_volume_mount_point}"
