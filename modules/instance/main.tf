@@ -16,19 +16,17 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_instance" "instance" {
-  ami                       = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
-  instance_type             = var.aws_instance_type
-  vpc_security_group_ids    = [aws_security_group.security_group.id]
-  key_name                  = var.ssh_key_name
-  tags                      = { Name = var.instance_name }
+  ami                     = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
+  instance_type           = var.aws_instance_type
+  vpc_security_group_ids  = [aws_security_group.security_group.id]
+  key_name                = var.ssh_key_name
+  tags                    = { Name = var.instance_name }
   # There is no way we can do custom volume tags for each EBS right now
   # https://github.com/terraform-providers/terraform-provider-aws/issues/2891
-  volume_tags               = { Name = var.instance_name }
+  volume_tags             = { Name = var.instance_name }
 
-  user_data                 = templatefile("${path.module}/templates/user-data.sh", {
-    # Pass in the data about the EBS volumes so they can be mounted
-    ebs_volume_device_name  = var.ebs_volume_device_name
-    ebs_volume_mount_point  = var.ebs_volume_mount_point
+  user_data               = templatefile("${path.module}/templates/user-data.sh", {
+    ebs_block_devices     = var.ebs_block_devices
   })
 
   root_block_device {

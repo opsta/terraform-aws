@@ -99,23 +99,26 @@ function mount_volume {
 
 # Adapt from here https://github.com/gruntwork-io/terraform-aws-influx/blob/master/examples/tick-single-cluster/user-data/user-data.sh
 function mount_volumes {
-  local -r volume_device_name="$1"
-  local -r volume_mount_point="$2"
-  local -r volume_owner="$3"
-
-  if [ -z "$${volume_device_name}" ] || [ -z "$${volume_mount_point}" ]; then
-    echo "No volume to mount"
-    exit 0
-  fi
+  var=$(declare -p "$1")
+  eval "declare -A ebs_block_devices="$${var#*=}
 
   echo "Create a temporary symbolic link to retrieve UUID on first boot"
   nvme_alias
 
-  echo "Mounting EBS Volume for meta, data, wal and hh directories"
-  mount_volume "$volume_device_name" "$volume_mount_point" "$volume_owner"
+  for key in "$${!ebs_block_devices[@]}"; do
+    echo "Mounting /dev/$key EBS Volume on $${ebs_block_devices[$key]}"
+    mount_volume "/dev/$key" "$${ebs_block_devices[$key]}"
+  done
 }
 
 
-mount_volumes \
-  "${ebs_volume_device_name}" \
-  "${ebs_volume_mount_point}"
+%{ if length(ebs_block_devices) > 0 ~}
+
+declare -A ebs_block_devices
+%{ for ebs_block_device in ebs_block_devices ~}
+ebs_block_devices[${trimprefix(ebs_block_device.device_name, "/dev/")}]="${ebs_block_device.path}"
+%{ endfor ~}
+
+mount_volumes "ebs_block_devices"
+
+%{ endif ~}

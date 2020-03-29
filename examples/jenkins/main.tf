@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------------------------------------------
-# DEPLOY A SINGLE NODE GITLAB
+# DEPLOY A SINGLE NODE JENKINS
 # ---------------------------------------------------------------------------------------------------------------------
 
 terraform {
@@ -7,7 +7,7 @@ terraform {
     organization = "opsta"
 
     workspaces {
-      name = "gitlab"
+      name = "jenkins"
     }
   }
 }
@@ -22,10 +22,10 @@ provider "aws" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# DEPLOY A SINGLE GITLAB EC2 INSTANCE
+# DEPLOY A SINGLE JENKINS EC2 INSTANCE
 # ---------------------------------------------------------------------------------------------------------------------
 
-module "gitlab" {
+module "jenkins" {
   # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
   # to a specific version of the modules, such as the following example:
   # source = "github.com/opsta/terraform-aws.git//modules/instance?ref=master"

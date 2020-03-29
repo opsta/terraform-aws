@@ -145,7 +145,7 @@ variable "root_volume_iops" {
 }
 
 variable "ebs_block_devices" {
-  description = "A list of EBS volumes to attach to each EC2 Instance. Each item in the list should be an object with the keys 'device_name', 'volume_type', 'volume_size', 'iops', 'delete_on_termination', and 'encrypted', as defined here: https://www.terraform.io/docs/providers/aws/r/launch_configuration.html#block-devices. We recommend using one EBS Volume for each instance."
+  description = "A list of EBS volumes to attach to each EC2 Instance. Each item in the list should be an object with the keys 'device_name', 'volume_type', 'volume_size', 'iops', 'delete_on_termination', and 'encrypted', as defined here: https://www.terraform.io/docs/providers/aws/r/launch_configuration.html#block-devices. Also there is 'path' key to use with user data shell script to mount path automatically."
   # We can't narrow the type down more than "any" because if we use list(object(...)), then all the fields in the
   # object will be required (whereas some, such as encrypted, should be optional), and if we use list(map(...)), all
   # the values in the map must be of the same type, whereas we need some to be strings, some to be bools, and some to
@@ -158,22 +158,9 @@ variable "ebs_block_devices" {
   #     volume_type           = "gp2"
   #     volume_size           = 40
   #     delete_on_termination = false
+  #     path                  = "var/lib/myapp"
   #   }
   # ]
-}
-
-variable "ebs_volume_device_name" {
-  description = "The device name to use for the EBS Volume used for the data directories on instance."
-  type        = string
-  default     = ""
-  # default     = "/dev/xvdh"
-}
-
-variable "ebs_volume_mount_point" {
-  description = "The mount point (folder path) to use for the EBS Volume used for the data directories on instance."
-  type        = string
-  default     = ""
-  # default     = "/var/lib/myapp"
 }
 
 variable "ansible_inventory_path" {

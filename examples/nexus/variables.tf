@@ -20,7 +20,7 @@ variable "aws_region" {
 variable "instance_name" {
   description = "AWS instance name"
   type        = string
-  default     = "gitlab"
+  default     = "nexus"
 }
 
 variable "ssh_key_name" {
@@ -58,9 +58,9 @@ variable "ebs_block_devices" {
     {
       device_name           = "/dev/xvdh"
       volume_type           = "gp2"
-      volume_size           = 40
+      volume_size           = 100
       delete_on_termination = false
-      path                  = "/var/opt/gitlab"
+      path                  = "/opt"
     }
   ]
 }
