@@ -40,3 +40,21 @@ variable "vpc_public_subnets" {
   type        = list
   default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 }
+
+variable "vpc_azs" {
+  description = "VPC Availability Zone"
+  type        = list
+  default     = ["ap-southeast-1a", "ap-southeast-1b", "ap-southeast-1c"]
+}
+
+variable "custom_private_subnet_tags" {
+  description = "Custom tags for private subnet"
+  type        = map
+  default     = {}
+}
+
+variable "custom_public_subnet_tags" {
+  description = "Custom tags for public subnet"
+  type        = map
+  default     = {}
+}

@@ -22,7 +22,7 @@ module "aws_vpc" {
   name = var.vpc_name
 
   cidr            = var.vpc_cidr
-  azs             = ["ap-southeast-1a", "ap-southeast-1b", "ap-southeast-1c"]
+  azs             = var.vpc_azs
   private_subnets = var.vpc_private_subnets
   public_subnets  = var.vpc_public_subnets
 
@@ -30,4 +30,7 @@ module "aws_vpc" {
 
   enable_nat_gateway = true
   enable_vpn_gateway = true
+
+  private_subnet_tags = var.custom_private_subnet_tags
+  public_subnet_tags  = var.custom_public_subnet_tags
 }
