@@ -16,24 +16,25 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_instance" "instance" {
-  ami                     = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
-  instance_type           = var.aws_instance_type
-  vpc_security_group_ids  = [aws_security_group.security_group.id]
-  key_name                = var.ssh_key_name
-  tags                    = { Name = var.instance_name }
+  count                  = var.aws_use_spot_instance ? 0 : 1
+  ami                    = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
+  instance_type          = var.aws_instance_type
+  vpc_security_group_ids = [aws_security_group.security_group.id]
+  key_name               = var.ssh_key_name
+  tags                   = { Name = var.instance_name }
   # There is no way we can do custom volume tags for each EBS right now
   # https://github.com/terraform-providers/terraform-provider-aws/issues/2891
-  volume_tags             = { Name = var.instance_name }
+  volume_tags            = { Name = var.instance_name }
 
-  user_data               = templatefile("${path.module}/templates/user-data.sh", {
-    ebs_block_devices     = var.ebs_block_devices
+  user_data           = templatefile("${path.module}/templates/user-data.sh", {
+    ebs_block_devices = var.ebs_block_devices
   })
 
   root_block_device {
-    volume_type             = var.root_volume_type
-    volume_size             = var.root_volume_size
-    delete_on_termination   = var.root_volume_delete_on_termination
-    iops                    = var.root_volume_iops
+    volume_type           = var.root_volume_type
+    volume_size           = var.root_volume_size
+    delete_on_termination = var.root_volume_delete_on_termination
+    iops                  = var.root_volume_iops
   }
 
   dynamic "ebs_block_device" {
@@ -47,6 +48,58 @@ resource "aws_instance" "instance" {
       volume_size           = lookup(ebs_block_device.value, "volume_size", null)
       volume_type           = lookup(ebs_block_device.value, "volume_type", null)
     }
+  }
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATE EC2 SPOT INSTANCE(S)
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "aws_spot_instance_request" "instance" {
+  count                           = var.aws_use_spot_instance ? 1 : 0
+  wait_for_fulfillment            = true
+  instance_interruption_behaviour = "stop"
+  ami                             = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
+  instance_type                   = var.aws_instance_type
+  vpc_security_group_ids          = [aws_security_group.security_group.id]
+  key_name                        = var.ssh_key_name
+  tags                            = { Name = var.instance_name }
+  # There is no way we can do custom volume tags for each EBS right now
+  # https://github.com/terraform-providers/terraform-provider-aws/issues/2891
+  volume_tags                     = { Name = var.instance_name }
+
+  user_data           = templatefile("${path.module}/templates/user-data.sh", {
+    ebs_block_devices = var.ebs_block_devices
+  })
+
+  root_block_device {
+    volume_type           = var.root_volume_type
+    volume_size           = var.root_volume_size
+    delete_on_termination = var.root_volume_delete_on_termination
+    iops                  = var.root_volume_iops
+  }
+
+  dynamic "ebs_block_device" {
+    for_each                = var.ebs_block_devices
+    content {
+      device_name           = ebs_block_device.value["device_name"]
+      delete_on_termination = lookup(ebs_block_device.value, "delete_on_termination", null)
+      encrypted             = lookup(ebs_block_device.value, "encrypted", null)
+      iops                  = lookup(ebs_block_device.value, "iops", null)
+      snapshot_id           = lookup(ebs_block_device.value, "snapshot_id", null)
+      volume_size           = lookup(ebs_block_device.value, "volume_size", null)
+      volume_type           = lookup(ebs_block_device.value, "volume_type", null)
+    }
+  }
+
+  # Tag name won't apply on Spot Instance
+  # https://github.com/hashicorp/terraform/issues/3263
+  provisioner "local-exec" {
+    command = join("", formatlist("aws ec2 create-tags --resources ${self.spot_instance_id} --tags Key=\"%s\",Value=\"%s\" --region=${var.aws_region}; ", keys(self.tags), values(self.tags)))
+  }
+  # Tag volume
+  provisioner "local-exec" {
+    command = "for eachVolume in `aws ec2 describe-volumes --region ${var.aws_region} --filters Name=attachment.instance-id,Values=${self.spot_instance_id} | jq -r .Volumes[].VolumeId`; do ${join("", formatlist("aws ec2 create-tags --resources $eachVolume --tags Key=\"%s\",Value=\"%s\" --region=${var.aws_region}; ", keys(self.tags), values(self.tags)))} done;"
   }
 }
 
@@ -167,7 +220,7 @@ data "template_file" "ansible_inventory" {
   template         = "${file("${path.module}/templates/ansible_inventory.ini")}"
   vars = {
     instance_group = var.instance_name
-    instance_host  = "${var.instance_name}-server ansible_user=${var.ami_ssh_user} ansible_host=${aws_instance.instance.public_ip} ansible_port=${var.ami_ssh_port}"
+    instance_host  = "${var.instance_name}-server ansible_user=${var.ami_ssh_user} ansible_host=${var.aws_use_spot_instance ? aws_spot_instance_request.instance[0].public_ip : aws_instance.instance[0].public_ip} ansible_port=${var.ami_ssh_port}"
   }
 }
 

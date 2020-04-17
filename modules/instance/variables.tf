@@ -12,11 +12,11 @@
 # You must provide a value for each of these parameters.
 # ---------------------------------------------------------------------------------------------------------------------
 
-# variable "aws_region" {
-#   description = "The AWS region in which all resources will be created"
-#   type        = string
-#   default     = "ap-southeast-1"
-# }
+variable "aws_region" {
+  description = "The AWS region in which all resources will be created"
+  type        = string
+  default     = "ap-southeast-1"
+}
 
 variable "instance_name" {
   description = "AWS instance name"
@@ -45,6 +45,12 @@ variable "aws_instance_type" {
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
+
+variable "aws_use_spot_instance" {
+  description = "Use AWS Spot Instance"
+  type        = bool
+  default     = true
+}
 
 variable "vpc_id" {
   description = "The ID of the VPC. This is only use in case of you don't want to use default VPC"

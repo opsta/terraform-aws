@@ -5,12 +5,12 @@ output "instance_name" {
 
 output "public_ip" {
   description = "Instance Public IP"
-  value       = aws_instance.instance.public_ip
+  value       = var.aws_use_spot_instance ? aws_spot_instance_request.instance[0].public_ip : aws_instance.instance[0].public_ip
 }
 
 output "private_ip" {
   description = "Instance Private IP"
-  value       = aws_instance.instance.private_ip
+  value       = var.aws_use_spot_instance ? aws_spot_instance_request.instance[0].private_ip : aws_instance.instance[0].private_ip
 }
 
 output "ssh_port" {
