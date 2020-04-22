@@ -19,6 +19,7 @@ resource "aws_instance" "instance" {
   count                  = var.aws_use_spot_instance ? 0 : 1
   ami                    = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
   instance_type          = var.aws_instance_type
+  subnet_id              = var.aws_subnet_id
   vpc_security_group_ids = [aws_security_group.security_group.id]
   key_name               = var.ssh_key_name
   tags                   = { Name = var.instance_name }
@@ -60,6 +61,7 @@ resource "aws_spot_instance_request" "instance" {
   wait_for_fulfillment            = true
   instance_interruption_behaviour = "stop"
   ami                             = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
+  subnet_id                       = var.aws_subnet_id
   instance_type                   = var.aws_instance_type
   vpc_security_group_ids          = [aws_security_group.security_group.id]
   key_name                        = var.ssh_key_name
@@ -123,7 +125,7 @@ module "key_pair" {
 resource "aws_security_group" "security_group" {
   name        = var.instance_name
   description = "Security group for the ${var.instance_name} instance"
-  vpc_id      = var.vpc_id != "" ? var.vpc_id : data.aws_subnet_ids.default.vpc_id
+  vpc_id      = var.aws_vpc_id != "" ? var.aws_vpc_id : data.aws_subnet_ids.default.vpc_id
 
   dynamic "egress" {
     for_each      = var.sg_egress_ports

@@ -46,13 +46,19 @@ variable "aws_instance_type" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "aws_subnet_id" {
+  description = "VPC Subnet ID to spawn instance"
+  type        = string
+  default     = null
+}
+
 variable "aws_use_spot_instance" {
   description = "Use AWS Spot Instance"
   type        = bool
   default     = true
 }
 
-variable "vpc_id" {
+variable "aws_vpc_id" {
   description = "The ID of the VPC. This is only use in case of you don't want to use default VPC"
   type        = string
   default     = ""
