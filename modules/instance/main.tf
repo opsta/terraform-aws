@@ -128,22 +128,24 @@ resource "aws_security_group" "security_group" {
   vpc_id      = var.aws_vpc_id != "" ? var.aws_vpc_id : data.aws_subnet_ids.default.vpc_id
 
   dynamic "egress" {
-    for_each      = var.sg_egress_ports
+    for_each          = var.sg_egress_ports
     content {
-      protocol    = egress.value["protocol"]
-      from_port   = egress.value["from_port"]
-      to_port     = egress.value["to_port"]
-      cidr_blocks = egress.value["cidr_blocks"]
+      protocol        = egress.value["protocol"]
+      from_port       = egress.value["from_port"]
+      to_port         = egress.value["to_port"]
+      cidr_blocks     = lookup(egress.value, "cidr_blocks", null)
+      security_groups = lookup(egress.value, "security_groups", null)
     }
   }
 
   dynamic "ingress" {
-    for_each      = var.sg_ingress_ports
+    for_each          = var.sg_ingress_ports
     content {
-      protocol    = ingress.value["protocol"]
-      from_port   = ingress.value["from_port"]
-      to_port     = ingress.value["to_port"]
-      cidr_blocks = ingress.value["cidr_blocks"]
+      protocol        = ingress.value["protocol"]
+      from_port       = ingress.value["from_port"]
+      to_port         = ingress.value["to_port"]
+      cidr_blocks     = lookup(ingress.value, "cidr_blocks", null)
+      security_groups = lookup(ingress.value, "security_groups", null)
     }
   }
 }
