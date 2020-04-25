@@ -46,6 +46,12 @@ variable "aws_instance_type" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "private_ip" {
+  description = "Instance Private IP"
+  type        = string
+  default     = null
+}
+
 variable "aws_subnet_id" {
   description = "VPC Subnet ID to spawn instance"
   type        = string

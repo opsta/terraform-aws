@@ -20,6 +20,7 @@ resource "aws_instance" "instance" {
   ami                    = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
   instance_type          = var.aws_instance_type
   subnet_id              = var.aws_subnet_id
+  private_ip             = var.private_ip
   vpc_security_group_ids = [aws_security_group.security_group.id]
   key_name               = var.ssh_key_name
   tags                   = { Name = var.instance_name }
@@ -62,6 +63,7 @@ resource "aws_spot_instance_request" "instance" {
   instance_interruption_behaviour = "stop"
   ami                             = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
   subnet_id                       = var.aws_subnet_id
+  private_ip                      = var.private_ip
   instance_type                   = var.aws_instance_type
   vpc_security_group_ids          = [aws_security_group.security_group.id]
   key_name                        = var.ssh_key_name
