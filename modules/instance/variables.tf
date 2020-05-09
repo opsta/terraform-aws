@@ -18,6 +18,16 @@ variable "aws_region" {
   default     = "ap-southeast-1"
 }
 
+variable "aws_vpc_id" {
+  description = "The ID of the VPC. This is only use in case of you don't want to use default VPC"
+  type        = string
+}
+
+variable "aws_subnet_id" {
+  description = "VPC Subnet ID to spawn instance"
+  type        = string
+}
+
 variable "instance_name" {
   description = "AWS instance name"
   type        = string
@@ -52,22 +62,10 @@ variable "private_ip" {
   default     = null
 }
 
-variable "aws_subnet_id" {
-  description = "VPC Subnet ID to spawn instance"
-  type        = string
-  default     = null
-}
-
 variable "aws_use_spot_instance" {
   description = "Use AWS Spot Instance"
   type        = bool
   default     = true
-}
-
-variable "aws_vpc_id" {
-  description = "The ID of the VPC. This is only use in case of you don't want to use default VPC"
-  type        = string
-  default     = ""
 }
 
 variable "ami_id" {

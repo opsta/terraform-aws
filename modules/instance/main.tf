@@ -127,7 +127,7 @@ module "key_pair" {
 resource "aws_security_group" "security_group" {
   name        = var.instance_name
   description = "Security group for the ${var.instance_name} instance"
-  vpc_id      = var.aws_vpc_id != "" ? var.aws_vpc_id : data.aws_subnet_ids.default.vpc_id
+  vpc_id      = var.aws_vpc_id
 
   dynamic "egress" {
     for_each          = var.sg_egress_ports
@@ -199,21 +199,6 @@ data "aws_ami" "amazon_linux" {
     name   = "name"
     values = ["amzn2-ami-hvm*"]
   }
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# DEPLOY INSTANCE IN THE DEFAULT VPC AND SUBNETS
-# Using the default VPC and subnets makes it easy to run and test, but it means instance is accessible from
-# the public Internet. For a production deployment, we strongly recommend deploying into a custom VPC with private
-# subnets.
-# ---------------------------------------------------------------------------------------------------------------------
-
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnet_ids" "default" {
-  vpc_id = data.aws_vpc.default.id
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
